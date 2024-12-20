@@ -195,7 +195,13 @@ void ATCHandler::fill_pick_scripts(int new_tool, bool clear_z) {
 	snprintf(buff, sizeof(buff), "G53 G0 X%.3f Y%.3f", THEROBOT->from_millimeters(current_tool->mx_mm), THEROBOT->from_millimeters(current_tool->my_mm));
 	this->script_queue.push(buff);
 	// move around to see if tool rack is filled
-	this->script_queue.push("M492.1");
+
+	//@Kyber edit
+	if (this->atc_home_info.max_travel > 0.0) {
+		this->script_queue.push("M492.1");
+	}
+	// this->script_queue.push("M492.1"); // @Kyber uncomment for original
+	
 	// loose tool
 	this->script_queue.push("M490.2");
 	// move x and y to reseted tool position
@@ -213,7 +219,13 @@ void ATCHandler::fill_pick_scripts(int new_tool, bool clear_z) {
 	snprintf(buff, sizeof(buff), "G53 G0 Z%.3f", THEROBOT->from_millimeters(this->safe_z_mm));
 	this->script_queue.push(buff);
 	// move around to see if tool rack is empty, halt if not
-	this->script_queue.push("M492.2");
+
+	//@Kyber edit 
+	if (this->atc_home_info.max_travel > 0.0) {
+		this->script_queue.push("M492.2");
+	}
+	// this->script_queue.push("M492.2"); //@Kyber uncomment for original
+
 	// set new tool
 	snprintf(buff, sizeof(buff), "M493.2 T%d", new_tool);
 	this->script_queue.push(buff);
