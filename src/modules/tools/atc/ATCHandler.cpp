@@ -161,8 +161,10 @@ void ATCHandler::fill_drop_scripts(int old_tool) {
     // move x and y to active tool position
 	snprintf(buff, sizeof(buff), "G53 G0 X%.3f Y%.3f", THEROBOT->from_millimeters(current_tool->mx_mm), THEROBOT->from_millimeters(current_tool->my_mm));
 	this->script_queue.push(buff);
-	// move around to see if tool rack is empty
+	// If max travel dist > 0, move around to see if tool rack is empty.
+	if (this->atc_home_info.max_travel > 0.0) {
 	this->script_queue.push("M492.2");
+	}
     // move x and y to reseted tool position
 	snprintf(buff, sizeof(buff), "G53 G0 X%.3f Y%.3f", THEROBOT->from_millimeters(current_tool->mx_mm), THEROBOT->from_millimeters(current_tool->my_mm));
 	this->script_queue.push(buff);
@@ -179,8 +181,11 @@ void ATCHandler::fill_drop_scripts(int old_tool) {
 	this->script_queue.push(buff);
 	// set new tool to -1
 	this->script_queue.push("M493.2 T-1");
-	// move around to see if tool is dropped, halt if not
+	// If max travel dist > 0, move around to see if tool is dropped,
+	// halt if not.
+	if (this->atc_home_info.max_travel > 0.0) {
 	this->script_queue.push("M492.1");
+}
 }
 
 void ATCHandler::fill_pick_scripts(int new_tool, bool clear_z) {
@@ -197,8 +202,10 @@ void ATCHandler::fill_pick_scripts(int new_tool, bool clear_z) {
 	// move x and y to new tool position
 	snprintf(buff, sizeof(buff), "G53 G0 X%.3f Y%.3f", THEROBOT->from_millimeters(current_tool->mx_mm), THEROBOT->from_millimeters(current_tool->my_mm));
 	this->script_queue.push(buff);
-	// move around to see if tool rack is filled
+	// If max travel dist > 0, move around to see if tool rack is filled
+	if (this->atc_home_info.max_travel > 0.0) {
 	this->script_queue.push("M492.1");
+	}
 	// loose tool
 	this->script_queue.push("M490.2");
 	// move x and y to reseted tool position
@@ -215,8 +222,10 @@ void ATCHandler::fill_pick_scripts(int new_tool, bool clear_z) {
 	// lift z to safe position with fast speed
 	snprintf(buff, sizeof(buff), "G53 G0 Z%.3f", THEROBOT->from_millimeters(this->safe_z_mm));
 	this->script_queue.push(buff);
-	// move around to see if tool rack is empty, halt if not
+	// If max travel dist > 0, move around to see if tool rack is empty, halt if not
+	if (this->atc_home_info.max_travel > 0.0) {
 	this->script_queue.push("M492.2");
+	}
 	// set new tool
 	snprintf(buff, sizeof(buff), "M493.2 T%d", new_tool);
 	this->script_queue.push(buff);
