@@ -72,7 +72,7 @@ private:
     void home_clamp();
 
     // laser detect
-    bool laser_detect();
+    // bool laser_detect();
 
     // probe check
     bool probe_detect();

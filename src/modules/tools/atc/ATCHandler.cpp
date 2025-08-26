@@ -788,57 +788,57 @@ uint32_t ATCHandler::countdown_probe_laser(uint32_t dummy)
     return 0;
 }
 
-bool ATCHandler::laser_detect() {
-    // First wait for the queue to be empty
-    THECONVEYOR->wait_for_idle();
+// bool ATCHandler::laser_detect() {
+//     // First wait for the queue to be empty
+//     THECONVEYOR->wait_for_idle();
 
-    // switch on detector
-    bool switch_state = true;
-    bool ok = PublicData::set_value(switch_checksum, detector_switch_checksum, state_checksum, &switch_state);
-    if (!ok) {
-        THEKERNEL->streams->printf("ERROR: Failed switch on detector switch.\r\n");
-        return false;
-    }
+//     // switch on detector
+//     bool switch_state = true;
+//     bool ok = PublicData::set_value(switch_checksum, detector_switch_checksum, state_checksum, &switch_state);
+//     if (!ok) {
+//         THEKERNEL->streams->printf("ERROR: Failed switch on detector switch.\r\n");
+//         return false;
+//     }
 
-    // move around and check laser detector
-    detecting = true;
-    detector_info.triggered = false;
+//     // move around and check laser detector
+//     detecting = true;
+//     detector_info.triggered = false;
 
-	float delta[Y_AXIS + 1];
-	for (size_t i = 0; i <= Y_AXIS; i++) delta[i] = 0;
-	delta[Y_AXIS]= detector_info.detect_travel / 2;
-	THEROBOT->delta_move(delta, detector_info.detect_rate, Y_AXIS + 1);
-	// wait for it
-	THECONVEYOR->wait_for_idle();
-	if(THEKERNEL->is_halted()) return false;
+// 	float delta[Y_AXIS + 1];
+// 	for (size_t i = 0; i <= Y_AXIS; i++) delta[i] = 0;
+// 	delta[Y_AXIS]= detector_info.detect_travel / 2;
+// 	THEROBOT->delta_move(delta, detector_info.detect_rate, Y_AXIS + 1);
+// 	// wait for it
+// 	THECONVEYOR->wait_for_idle();
+// 	if(THEKERNEL->is_halted()) return false;
 
-	delta[Y_AXIS]= 0 - detector_info.detect_travel;
-	THEROBOT->delta_move(delta, detector_info.detect_rate, Y_AXIS + 1);
-	// wait for it
-	THECONVEYOR->wait_for_idle();
-	if(THEKERNEL->is_halted()) return false;
+// 	delta[Y_AXIS]= 0 - detector_info.detect_travel;
+// 	THEROBOT->delta_move(delta, detector_info.detect_rate, Y_AXIS + 1);
+// 	// wait for it
+// 	THECONVEYOR->wait_for_idle();
+// 	if(THEKERNEL->is_halted()) return false;
 
-	delta[Y_AXIS]= detector_info.detect_travel / 2;
-	THEROBOT->delta_move(delta, detector_info.detect_rate, Y_AXIS + 1);
-	// wait for it
-	THECONVEYOR->wait_for_idle();
-	if(THEKERNEL->is_halted()) return false;
+// 	delta[Y_AXIS]= detector_info.detect_travel / 2;
+// 	THEROBOT->delta_move(delta, detector_info.detect_rate, Y_AXIS + 1);
+// 	// wait for it
+// 	THECONVEYOR->wait_for_idle();
+// 	if(THEKERNEL->is_halted()) return false;
 
 
-	detecting = false;
-	// switch off detector
-	switch_state = false;
-    ok = PublicData::set_value(switch_checksum, detector_switch_checksum, state_checksum, &switch_state);
-    if (!ok) {
-        THEKERNEL->streams->printf("ERROR: Failed switch off detector switch.\r\n");
-        return false;
-    }
+// 	detecting = false;
+// 	// switch off detector
+// 	switch_state = false;
+//     ok = PublicData::set_value(switch_checksum, detector_switch_checksum, state_checksum, &switch_state);
+//     if (!ok) {
+//         THEKERNEL->streams->printf("ERROR: Failed switch off detector switch.\r\n");
+//         return false;
+//     }
 
-    // reset position
-    THEROBOT->reset_position_from_current_actuator_position();
+//     // reset position
+//     THEROBOT->reset_position_from_current_actuator_position();
 
-    return detector_info.triggered;
-}
+//     return detector_info.triggered;
+// }
 
 bool ATCHandler::probe_detect() {
     // First wait for the queue to be empty
@@ -1177,21 +1177,22 @@ void ATCHandler::on_gcode_received(void *argument)
 		} else if (gcode->m == 492) {
 			if(THEKERNEL->factory_set->FuncSetting & (1<<2))	//ATC 
 			{
-				if (gcode->subcode == 0 || gcode->subcode == 1) {
-					// check true
-					if (!laser_detect()) {
-				        THEKERNEL->set_halt_reason(ATC_NO_TOOL);
-				        THEKERNEL->call_event(ON_HALT, nullptr);
-				        THEKERNEL->streams->printf("ERROR: Unexpected tool absence detected, please check tool rack!\n");
-					}
-				} else if (gcode->subcode == 2) {
-					// check false
-					if (laser_detect()) {
-				        THEKERNEL->set_halt_reason(ATC_HAS_TOOL);
-				        THEKERNEL->call_event(ON_HALT, nullptr);
-				        THEKERNEL->streams->printf("ERROR: Unexpected tool presence detected, please check tool rack!\n");
-					}
-				} else if (gcode->subcode == 3) {
+				// if (gcode->subcode == 0 || gcode->subcode == 1) {
+				// 	// check true
+				// 	if (!laser_detect()) {
+				//         THEKERNEL->set_halt_reason(ATC_NO_TOOL);
+				//         THEKERNEL->call_event(ON_HALT, nullptr);
+				//         THEKERNEL->streams->printf("ERROR: Unexpected tool absence detected, please check tool rack!\n");
+				// 	}
+				// } else if (gcode->subcode == 2) {
+				// 	// check false
+				// 	if (laser_detect()) {
+				//         THEKERNEL->set_halt_reason(ATC_HAS_TOOL);
+				//         THEKERNEL->call_event(ON_HALT, nullptr);
+				//         THEKERNEL->streams->printf("ERROR: Unexpected tool presence detected, please check tool rack!\n");
+				// 	}
+				// } else
+				if (gcode->subcode == 3) {
 					// check if the probe was triggered
 					if (!probe_detect()) {
 				        THEKERNEL->set_halt_reason(PROBE_INVALID);
